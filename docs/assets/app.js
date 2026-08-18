@@ -61,6 +61,7 @@ const state = {
   areas: null,
   town: null,
   facilities: null,
+  speeches: null,
   breaks: {},
   selected: null,
   shown: new Set(),   // 表示中の施設カテゴリ
@@ -157,18 +158,21 @@ Promise.all([
   fetch('data/chatan_areas.geojson').then((r) => r.json()),
   fetch('data/chatan_town.json').then((r) => r.json()),
   fetch('data/chatan_facilities.geojson').then((r) => r.json()),
+  fetch('data/chatan_speeches.json').then((r) => r.json()),
   mapReady,
 ])
-  .then(([areas, town, facilities]) => {
+  .then(([areas, town, facilities, speeches]) => {
     state.areas = areas;
     state.town = town;
     state.facilities = facilities;
+    state.speeches = speeches;
     for (const m of ALL_METRICS) state.breaks[m.id] = computeBreaks(m, areas.features);
 
     renderTown();
     renderMetricButtons();
     initLayers();
     initFacilities();
+    renderCouncil();
   })
   .catch((err) => {
     console.error('[init]', err);
@@ -278,6 +282,55 @@ function centroid(geom) {
     total += Math.abs(a);
   }
   return total ? [cx / total, cy / total] : polys[0][0][0];
+}
+
+/* ---------- 議会での言及 ---------- */
+
+// 議事録側は「美浜」のような基準名なので、字美浜・美浜一丁目…をまとめて拾う
+function areaBase(name) {
+  return name.replace(/^字/, '').replace(/[一二三四五六七八九十１２３]丁目$/, '');
+}
+
+function speechesFor(feature) {
+  const sp = state.speeches;
+  if (!sp) return [];
+  return sp.area_mentions[areaBase(feature.properties.name)] || [];
+}
+
+function speechHTML(s, showAreas) {
+  const tag = showAreas && s.areas.length ? `<span class="tag">${s.areas.join('・')}</span>` : '';
+  return `<div class="speech">
+    <div class="head"><span>${s.date}</span><span class="who">${s.speaker}</span>${tag}</div>
+    <p class="q">「${s.excerpt}」</p>
+    <a href="${s.url}" target="_blank" rel="noopener">原文を見る（${s.title}）</a>
+  </div>`;
+}
+
+function renderCouncil() {
+  const sp = state.speeches;
+  const body = document.getElementById('council-body');
+  const withArea = Object.keys(sp.area_counts).length;
+  body.innerHTML =
+    `<p class="cov">${sp.council}・${sp.coverage}から、北谷町に触れた発言 ${sp.town_mentions.length} 件。` +
+    `うち字まで特定できたのは ${withArea} の字です。${sp.note.split('。').slice(-2, -1)[0]}。</p>` +
+    sp.town_mentions.map((s) => speechHTML(s, true)).join('');
+
+  // 字が特定できた区域を地図上でも分かるようにする
+  const keys = state.areas.features
+    .filter((f) => speechesFor(f).length)
+    .map((f) => f.properties.key);
+  if (map.getLayer('areas-council')) map.removeLayer('areas-council');
+  map.addLayer({
+    id: 'areas-council',
+    type: 'line',
+    source: 'areas',
+    filter: ['in', ['get', 'key'], ['literal', keys]],
+    paint: {
+      'line-color': '#0f6d7a',
+      'line-width': 2.2,
+      'line-dasharray': [2, 1.6],
+    },
+  });
 }
 
 /* ---------- 施設レイヤ ---------- */
@@ -535,6 +588,11 @@ function renderDetail(f) {
         vs(p.hh_with_u18_ratio, t.hh_with_u18_ratio, '%')),
     row('6歳未満のいる世帯', p.hh_with_u6_ratio === null ? '—' : `${fmt(p.hh_with_u6_ratio, 1)}%`,
         vs(p.hh_with_u6_ratio, t.hh_with_u6_ratio, '%')),
+    (() => {
+      const sp = speechesFor(f);
+      if (!sp.length) return '';
+      return sec('議会での言及') + sp.map((s) => speechHTML(s, false)).join('');
+    })(),
     '</div>',
   ].join('');
 

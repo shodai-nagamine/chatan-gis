@@ -476,3 +476,59 @@ body {
 }
 
 .fac-pop .addr { margin: 0; font-size: 11px; color: var(--ink-faint); line-height: 1.5; }
+
+/* ---------- 議会での言及 ---------- */
+
+#council .cov {
+  margin: 0 0 10px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-faint);
+}
+
+.speech {
+  border-top: 1px solid var(--line);
+  padding: 9px 0 8px;
+}
+
+.speech:last-child { padding-bottom: 0; }
+
+.speech .head {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.speech .head .who { color: var(--ink-soft); font-weight: 600; }
+
+.speech .head .tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+
+.speech .q {
+  margin: 0 0 5px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.speech a {
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(15, 109, 122, .3);
+}
+
+.speech a:hover { border-bottom-color: var(--accent); }
+
+.rows .speech { border-top: 0; border-bottom: 1px solid var(--line); }
