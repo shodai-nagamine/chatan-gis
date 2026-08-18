@@ -46,10 +46,25 @@ const METRICS = [
   ]},
 ];
 
+const FACILITY_CATEGORIES = [
+  { id: '医療', label: '医療機関', color: '#c2453a' },
+  { id: '入所', label: '介護（入所）', color: '#6b4a9e' },
+  { id: '通所', label: '介護（通所）', color: '#c07a12' },
+  { id: '訪問・相談', label: '介護（訪問・相談）', color: '#1d6f6a' },
+];
+
 const ALL_METRICS = METRICS.flatMap((g) => g.items);
 const byId = (id) => ALL_METRICS.find((m) => m.id === id);
 
-const state = { metric: 'ratio_o65', areas: null, town: null, breaks: {}, selected: null };
+const state = {
+  metric: 'ratio_o65',
+  areas: null,
+  town: null,
+  facilities: null,
+  breaks: {},
+  selected: null,
+  shown: new Set(),   // 表示中の施設カテゴリ
+};
 
 /* ---------- 数値の見せ方 ---------- */
 
@@ -141,16 +156,19 @@ const mapReady = new Promise((resolve) => {
 Promise.all([
   fetch('data/chatan_areas.geojson').then((r) => r.json()),
   fetch('data/chatan_town.json').then((r) => r.json()),
+  fetch('data/chatan_facilities.geojson').then((r) => r.json()),
   mapReady,
 ])
-  .then(([areas, town]) => {
+  .then(([areas, town, facilities]) => {
     state.areas = areas;
     state.town = town;
+    state.facilities = facilities;
     for (const m of ALL_METRICS) state.breaks[m.id] = computeBreaks(m, areas.features);
 
     renderTown();
     renderMetricButtons();
     initLayers();
+    initFacilities();
   })
   .catch((err) => {
     console.error('[init]', err);
@@ -260,6 +278,91 @@ function centroid(geom) {
     total += Math.abs(a);
   }
   return total ? [cx / total, cy / total] : polys[0][0][0];
+}
+
+/* ---------- 施設レイヤ ---------- */
+
+function initFacilities() {
+  map.addSource('facilities', { type: 'geojson', data: state.facilities });
+
+  map.addLayer({
+    id: 'facilities-halo',
+    type: 'circle',
+    source: 'facilities',
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 5, 16, 9],
+      'circle-color': '#ffffff',
+      'circle-opacity': 0.95,
+    },
+  });
+
+  map.addLayer({
+    id: 'facilities-dot',
+    type: 'circle',
+    source: 'facilities',
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3.2, 16, 6],
+      'circle-color': [
+        'match',
+        ['get', 'category'],
+        ...FACILITY_CATEGORIES.flatMap((c) => [c.id, c.color]),
+        '#666',
+      ],
+      'circle-stroke-width': 0.8,
+      'circle-stroke-color': 'rgba(23,36,44,.35)',
+    },
+  });
+
+  renderFacilityToggles();
+  applyFacilityFilter();
+
+  const popup = new maplibregl.Popup({ closeButton: true, offset: 10, maxWidth: '260px' });
+
+  map.on('click', 'facilities-dot', (e) => {
+    const p = e.features[0].properties;
+    const cat = FACILITY_CATEGORIES.find((c) => c.id === p.category) || { color: '#666', label: p.category };
+    const kinds = typeof p.kinds === 'string' ? JSON.parse(p.kinds) : p.kinds || [];
+    popup
+      .setLngLat(e.features[0].geometry.coordinates)
+      .setHTML(
+        `<div class="fac-pop">
+           <span class="cat" style="background:${cat.color}">${cat.label}</span>
+           <h4>${p.name}</h4>
+           <p class="kinds">${kinds.join('・')}</p>
+           <p class="addr">${p.address || ''}</p>
+         </div>`
+      )
+      .addTo(map);
+  });
+
+  map.on('mouseenter', 'facilities-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', 'facilities-dot', () => { map.getCanvas().style.cursor = ''; });
+}
+
+function renderFacilityToggles() {
+  const counts = state.facilities.metadata.counts || {};
+  const wrap = document.getElementById('facility-toggles');
+  wrap.innerHTML = '';
+  for (const c of FACILITY_CATEGORIES) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.style.color = c.color;
+    b.setAttribute('aria-pressed', String(state.shown.has(c.id)));
+    b.innerHTML = `<span class="dot"></span>${c.label}<span class="n">${counts[c.id] || 0}</span>`;
+    b.onclick = () => {
+      if (state.shown.has(c.id)) state.shown.delete(c.id);
+      else state.shown.add(c.id);
+      b.setAttribute('aria-pressed', String(state.shown.has(c.id)));
+      applyFacilityFilter();
+    };
+    wrap.appendChild(b);
+  }
+}
+
+function applyFacilityFilter() {
+  const on = [...state.shown];
+  const filter = on.length ? ['in', ['get', 'category'], ['literal', on]] : ['==', ['get', 'category'], '__none__'];
+  for (const id of ['facilities-halo', 'facilities-dot']) map.setFilter(id, filter);
 }
 
 /* ---------- 指標の切り替え ---------- */
