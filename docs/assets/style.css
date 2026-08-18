@@ -1,0 +1,405 @@
+:root {
+  --ink: #17242c;
+  --ink-soft: #4d6472;
+  --ink-faint: #8199a6;
+  --paper: #f6f5f1;
+  --card: #ffffff;
+  --line: #e2e0da;
+  --accent: #0f6d7a;
+  --accent-soft: #e3f0f1;
+  --shadow: 0 1px 2px rgba(23, 36, 44, .06), 0 6px 20px rgba(23, 36, 44, .07);
+  --radius: 12px;
+  --panel-w: 372px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; }
+
+body {
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+               system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "palt" 1;
+}
+
+#app { display: flex; height: 100%; }
+
+/* ---------- パネル ---------- */
+
+#panel {
+  width: var(--panel-w);
+  flex: 0 0 var(--panel-w);
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px 18px 32px;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+  scrollbar-width: thin;
+}
+
+#brand { margin-bottom: 18px; }
+
+#brand h1 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: .02em;
+  font-weight: 700;
+}
+
+#brand .sub {
+  margin: 5px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  letter-spacing: .04em;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 15px 15px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  margin: 0 0 11px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.card h2 .year {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.note {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--ink-faint);
+}
+
+/* ---------- 町全体の数値 ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.grid .cell { background: var(--card); padding: 9px 8px 10px; }
+
+.grid .cell .k {
+  display: block;
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  letter-spacing: .03em;
+  margin-bottom: 3px;
+}
+
+.grid .cell .v {
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+
+.grid .cell .v .u {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-left: 1px;
+}
+
+.grid .cell .d {
+  display: block;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+  color: var(--ink-faint);
+}
+
+.up { color: #b4402f; }
+.down { color: #2f6ab4; }
+
+/* ---------- 指標セレクタ ---------- */
+
+.metrics { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.metrics button {
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: .02em;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fbfaf8;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+
+.metrics button:hover { border-color: var(--accent); color: var(--accent); }
+
+.metrics button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.metrics .group-label {
+  width: 100%;
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: var(--ink-faint);
+  margin: 6px 0 1px;
+}
+
+.metrics .group-label:first-child { margin-top: 0; }
+
+/* ---------- 凡例 ---------- */
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 3px 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-row .swatch {
+  width: 22px;
+  height: 12px;
+  border-radius: 3px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(23, 36, 44, .14);
+}
+
+.legend-row .lbl { color: var(--ink-soft); }
+
+/* ---------- 詳細 ---------- */
+
+#detail h3 {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+#detail .meta {
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  margin: 0 0 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rows { border-top: 1px solid var(--line); }
+
+.rows .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+
+.rows .row .k { color: var(--ink-soft); }
+
+.rows .row .v {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rows .row .v small {
+  font-weight: 500;
+  color: var(--ink-faint);
+  margin-left: 5px;
+}
+
+.rows .sec {
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: var(--ink-faint);
+  padding: 10px 0 3px;
+  border-bottom: 1px solid var(--line);
+}
+
+.placeholder { font-size: 12.5px; color: var(--ink-faint); margin: 0; line-height: 1.7; }
+
+/* ---------- ランキング ---------- */
+
+#ranking-body { margin: 0; padding: 0; list-style: none; counter-reset: r; }
+
+#ranking-body li {
+  counter-increment: r;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+#ranking-body li:last-child { border-bottom: 0; }
+#ranking-body li:hover .nm { color: var(--accent); }
+
+#ranking-body li::before {
+  content: counter(r);
+  flex: 0 0 18px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+#ranking-body .nm { flex: 1; }
+
+#ranking-body .bar {
+  flex: 0 0 66px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+#ranking-body .bar i { display: block; height: 100%; border-radius: 3px; }
+
+#ranking-body .vl {
+  flex: 0 0 auto;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+  text-align: right;
+}
+
+/* ---------- 出典 ---------- */
+
+#credits { padding: 4px 2px 0; }
+
+#credits h2 {
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--ink-faint);
+  margin: 0 0 7px;
+}
+
+#credits ul {
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink-faint);
+}
+
+#credits .note { margin-top: 9px; }
+
+/* ---------- 地図 ---------- */
+
+#map-wrap { position: relative; flex: 1; min-width: 0; height: 100%; }
+#map { position: absolute; inset: 0; }
+
+#tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+  background: rgba(23, 36, 44, .93);
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  transform: translate(-50%, -140%);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+}
+
+#tooltip .t-name { font-weight: 700; }
+#tooltip .t-val { color: #9fd8de; margin-left: 7px; }
+
+#panel-toggle {
+  display: none;
+  position: absolute;
+  z-index: 6;
+  top: 12px;
+  left: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.maplibregl-ctrl-attrib { font-size: 10.5px; }
+
+/* ---------- モバイル ---------- */
+
+@media (max-width: 800px) {
+  #app { flex-direction: column-reverse; }
+
+  #panel {
+    width: 100%;
+    flex: 1 1 auto;
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    padding: 16px 14px 28px;
+  }
+
+  #map-wrap { flex: 0 0 46vh; height: 46vh; }
+
+  #panel.is-collapsed { display: none; }
+  #panel-toggle { display: block; }
+}
+
+/* ---------- 地図上の区域名 ---------- */
+
+.area-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: #22333c;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow:
+     0 0 3px #fff,  0 0 3px #fff,
+     1px 0 2px #fff, -1px 0 2px #fff,
+     0 1px 2px #fff, 0 -1px 2px #fff;
+}
+
+.caution {
+  margin: 0 0 10px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  background: #fdf3e7;
+  border: 1px solid #f0dcc2;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #8a5a25;
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>北谷町 統計マップ — 町丁字別の人口・世帯・高齢化</title>
+<meta name="description" content="沖縄県北谷町の町丁字（字・丁目）別に、国勢調査の人口・世帯・高齢化の指標を地図で見る。">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="app">
+
+  <aside id="panel">
+    <header id="brand">
+      <h1>北谷町 統計マップ</h1>
+      <p class="sub">町丁字別に見る人口・世帯・高齢化</p>
+    </header>
+
+    <section id="town" class="card">
+      <h2>町全体 <span class="year">2020年</span></h2>
+      <div id="town-grid" class="grid"></div>
+      <p id="town-note" class="note"></p>
+    </section>
+
+    <section class="card">
+      <h2>表示する指標</h2>
+      <div id="metrics" class="metrics"></div>
+      <p id="metric-desc" class="note"></p>
+    </section>
+
+    <section id="legend" class="card">
+      <h2>凡例</h2>
+      <div id="legend-body"></div>
+    </section>
+
+    <section id="detail" class="card is-empty">
+      <h2>区域の詳細</h2>
+      <div id="detail-body">
+        <p class="placeholder">地図の区域をクリックすると、その字の数値が出ます。</p>
+      </div>
+    </section>
+
+    <section id="ranking" class="card">
+      <h2>ランキング</h2>
+      <ol id="ranking-body"></ol>
+    </section>
+
+    <footer id="credits">
+      <h2>出典</h2>
+      <ul>
+        <li>統計: 総務省統計局「令和2年国勢調査」「平成27年国勢調査」小地域集計（e-Stat 統計GIS）</li>
+        <li>境界: 「令和2年国勢調査 町丁・字等別境界データ」（e-Stat 統計GIS）</li>
+        <li>地図: 国土地理院タイル（淡色地図）</li>
+      </ul>
+      <p class="note">本サイトは個人が公開する非公式のものです。数値は上記統計をそのまま集計・比率化したもので、独自の推計は行っていません。</p>
+    </footer>
+  </aside>
+
+  <main id="map-wrap">
+    <div id="map"></div>
+    <div id="tooltip" hidden></div>
+    <button id="panel-toggle" type="button" aria-label="パネルの開閉">指標</button>
+  </main>
+
+</div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

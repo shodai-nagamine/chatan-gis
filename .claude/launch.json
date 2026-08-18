@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "chatan-gis",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8942", "--directory", "docs"],
+      "port": 8942
+    }
+  ]
+}
